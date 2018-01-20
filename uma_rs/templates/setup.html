@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row">
+    <h3>Welcome to the setup page for the demo UMA Resource server.</h3>
+    <p>
+      This demo server has some hard-coded resources that can be used for testing and demo purposes.
+      The resources need to be setup before they can be used for demos.
+    </p>
+    <p>
+      If you set <code>op_host</code> in <strong>rs-oxd.cfg</strong>, click the Setup button below.
+      The app will perform resource protection and give you the list of resources and access information
+      related to them.
+    </p>
+
+  </div>
+  <a href="/setup/" class="btn btn-primary btn-lg">Setup Demo Resource Server</a>
+{% endblock %}

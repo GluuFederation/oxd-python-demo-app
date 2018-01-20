@@ -12,7 +12,7 @@ first.
 * **constants.py** Module to centralize demo app properties
 * **demosite.cfg** This file contains the oxd configuration properties
 * **redirect-to-login.cgi** This script gets the right authorization url from
-oxd, and redirects the user's browser there for authentication / authorization. 
+oxd, and redirects the user's browser there for authentication / authorization.
 * **callback-login.cgi** Script that runs post-authorization. The script
 gets the `code` and `state` and requests tokens and user_info from oxd.
 * **redirect-to-logout.cgi** Script that gets the right logout url from oxd,
@@ -33,8 +33,8 @@ server and send the ticket to re-fetch RPT on successful authorization
 ## Deployment of demosite in Ubuntu
 
 1. Install [oxd-server](https://gluu.org/docs/oxd/install/)
-2. Edit `/opt/oxd-server/conf/oxd-conf.json` and enter your OXD License details,
-set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to false.
+2. Edit `/opt/oxd-server/conf/oxd-conf.json` and enter your oxd license details.
+Set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to false.
 3. Edit `/opt/oxd-server/conf/oxd-default-site-conf.json` and enter the value for
 `op_host` pointing to your Gluu Server installation. Run `service gluu-oxd-server start`.
 4. Install oxd-python
@@ -51,20 +51,13 @@ set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to 
     # a2ensite default-ssl
     # service apache2 reload
     ```
-6. Clone the demosite and setup for cgi-bin
-    ```
-    # cd /usr/lib/cgi-bin/
-    # git clone https://github.com/GluuFederation/oxd-python.git
-    # cp oxd-python/examples/cgi_app/* .
-    # chmod +x *.cgi
-    ```
-7. Edit `COOKIE_DOMAIN` in `constants.py` to suit your domain name.
-8. Setup logging and initialize the app
+6. Edit the properties in `constants.py` and `demosite.cfg` as appropriate for
+your environment.
+7. Setup logging and initialize the app
     ```
     # mkdir -p /var/log/sampleapp/
     # python setupDemo.py
     ```
-9. Change the domain names in `/var/log/sampleapp/demosite.cfg` URLs to match yours. (Similar to Step 3)
 10. Visit `https://your-hostname/cgi-bin/home.cgi`
 11. To debug check the logs are `/var/log/sampleapp/app.log` and `/var/log/oxd-server.log`
 

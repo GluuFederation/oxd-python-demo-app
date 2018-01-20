@@ -1,3 +1,6 @@
+# Folders
+CGI_BIN = "/usr/lib/cgi-bin"
+
 # Make sure these files are writable by the web server
 DB_FILENAME = "/var/log/sampleapp/sessionDB"
 CONFIG_FILE_ORIGINAL = 'demosite.cfg'
