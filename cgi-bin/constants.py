@@ -1,6 +1,6 @@
 # Folders
 CGI_BIN = '/usr/lib/cgi-bin'
-DONT_INSTALL_LIST = ['setupDemo.py']
+DONT_INSTALL_LIST = ['setupDemo.py', 'demosite.cfg', 'cleanupDemo.py']
 
 # Make sure these files are writable by the web server
 APP_FOLDER = '/var/log/sampleapp'

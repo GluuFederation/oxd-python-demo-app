@@ -7,25 +7,26 @@ import shelve
 import os
 import os.path
 from constants import *
-from appLog import *
 
 def ls(exclude=[]):
     import os
     f_list = []
     for subdir, dirs, files in os.walk('./'):
         for fn in files:
-            if fn not in exclude: f_list.append(fn)
+            if (fn[-4:] != '.pyc') and (fn not in exclude):
+                f_list.append(fn)
     f_list.sort()
     return f_list
 
 # Create the application folder
 if not os.path.isdir(APP_FOLDER):
      os.mkdir(APP_FOLDER)
-     log("Created app folder: %s" % APP_FOLDER)
+
+from appLog import *
 
 # Create the database
-db.close()
 db = shelve.open(DB_FILENAME, "n")
+db.close()
 log("Database created: %s " % DB_FILENAME)
 
 # Copy the default config file to the live location
@@ -35,7 +36,10 @@ log("Copied %s to %s" % (CONFIG_FILE_ORIGINAL, CONFIG_FILE))
 # Copy files to cgi-bin
 cgi_files = ls(DONT_INSTALL_LIST)
 for fn in cgi_files:
+    isCGI = ('.cgi' == fn[-4:]) 
     os.system("/bin/cp %s %s" % (fn, CGI_BIN))
+    if isCGI:
+        os.system("/bin/chmod 555 %s/%s" % (CGI_BIN, fn))
     log("Copied %s to %s" % (fn, CGI_BIN))
 
 # Make sure the web user can write these files.
