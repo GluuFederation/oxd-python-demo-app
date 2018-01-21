@@ -2,14 +2,15 @@
 CGI_BIN = "/usr/lib/cgi-bin"
 
 # Make sure these files are writable by the web server
-DB_FILENAME = "/var/log/sampleapp/sessionDB"
+APP_FOLDER = "/var/log/sampleapp"
+DB_FILENAME = "%s/sessionDB" % APP_FOLDER
 CONFIG_FILE_ORIGINAL = 'demosite.cfg'
-CONFIG_FILE = '/var/log/sampleapp/demosite.cfg'
-LOG_FN = '/var/log/sampleapp/app.log'
+CONFIG_FILE = '%s/demosite.cfg' % APP_FOLDER
+LOG_FN = '%s/app.log' % APP_FOLDER
 
 # Application Preferences
 TITLE = "World's Simplest Web App"
-COOKIE_DOMAIN = "squid.gluu.info"
+COOKIE_DOMAIN = "www.example.com"
 EXPIRATION_IN_MINUTES = 30
 TZ = "EST+05EDT,M4.1.0,M10.5.0"
 
