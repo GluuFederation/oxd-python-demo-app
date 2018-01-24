@@ -91,12 +91,12 @@ Do the following as a local user.
 
 ### Set up demo UMA Resource Server
 
-1. Open a new terminal window and navigate to the `uma_rs` directory
 ```
 $ cd /usr/lib/cgi-bin/oxd-python/examples/cgi_app/uma_rs
+$ nohup python app.py > uma_rs.log 2>&1 &
 ```
-2. Run `$ nohup python app.py > uma_rs.log 2>&1 &` to start the demo RS server. This server will be accessible only at `https://localhos:8085/`
-3. Run `curl -k https://localhost:8085/api/` for the details about the available API.
+**Note:** This server will be accessible only via localhost and will be used by the CGI app to demonstrate UMA.
+You can run `curl -k https://localhost:8085/api/` to know the API details provided by the RS app.
 
 ### Testing
 
