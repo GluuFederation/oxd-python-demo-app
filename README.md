@@ -1,10 +1,24 @@
 # Demo CGI
 
-## Overview
-
-The goal of these scripts is to show oxd-python at work with a minimal
+The goal of this app is to show oxd-python at work with a minimal
 amount of application overhead. A cookie is used to track a session id,
 which is persisted using the simple python shelve database interface.
+
+* [Files in cgi-bin](#scripts-in-cgi-bin)
+* [Deployment Instructions (Ubuntu 14/16)](#deployment-instructions-ubuntu-14-16)
+    - [Install oxd](#install-oxd)
+    - [Install Python Dependencies](#install-python-dependencies)
+    - [Install and Configure Apache 2](#install-and-configure-apache-2)
+    - [Install Demo](#install-demo) 
+    - [Setup demo UMA Resource Server](#setup-demo-uma-resource-server)
+* [Demo](#demo)
+    - [OpenID Connect](#openid-connect)
+    - [UMA Requesting Party](#uma-requesting-party)
+* [Troubleshooting](#troubleshooting)
+* [Uninstall Demo](#uninstall-demo)
+
+
+## Scripts in cgi-bin
 
 *Properties*
 * **constants.py** General Application properties: _Check paths, hostnames and ports_
@@ -36,11 +50,11 @@ file permissions.
 * **callback-claims.cgi** The script parses the response from Authorization
 server and send the ticket to re-fetch RPT on successful authorization
 
-*helper modules*
+*Helper modules*
 * **appLog.py** Module to centralize logging code
 * **common.py** Place to put some shared methods
 
-## Deployment instructions (Ubuntu 14)
+## Deployment Instructions (Ubuntu 14/16)
 
 ###  Install oxd
 
@@ -89,7 +103,7 @@ Do the following as a local user.
  $ sudo python setupDemo.py
 ```
 
-### Set up demo UMA Resource Server
+### Setup demo UMA Resource Server
 
 ```
 $ cd ../uma_rs
@@ -128,7 +142,7 @@ To test UMA, visit `https://your-hostname/cgi-bin/request-resource.cgi`
 ![resource obtained](images/uma-request-success.png)
 
 
-### Troubleshooting
+## Troubleshooting
 
 * Make sure that the web server can be reached by your local browser. You should
 also make sure that the server that is running the cgi scripts can reach the
