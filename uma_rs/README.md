@@ -29,23 +29,15 @@ and requesting party using oxd.
 # cd ~
 # git clone https://github.com/GluuFederation/oxd-python-demo-app.git
 # cd oxd-python-demo-app/uma_rs
-
-python app.py
+# python app.py
 ```
 
 Run `curl -k https://localhost:8085/` for API details.
 
 
-### Typical Resource Protection & Access Cycle
+### Typical Resource Access Cycle
 
-#### Resource Protection
-
-When the first run the app, a "Setup" link is provided. Clicking it sets up the app with necessary protections.
-
-
-#### Resource Access
-
-**Note:** Ideally all this should be done by a separate UMA Requesting Party App. For the RS example, lets just use `cURL`
+**Note:** Ideally all this should be done by a separate UMA Requesting Party App. We are using `curl` here.
 
 1. Access the URL `https://localhost:8085/api/photos/` from a REST client.
 ```
@@ -74,12 +66,15 @@ to get a RPT token as the Requesting Party.
 ```
 curl -k -H 'Authorization: Bearer ebe71635-1c24-470c-830c-7bc961e33457_140A.BA5B.556E.9842.0E8F.EFF7.F0AF.12E9' https://localhost:8085/apt/photos/
 {
-    "photos": [
-        {
-            "filename": "https://example.com/photo1.jpg",
-            "id": 1
-        }
-    ]
+    "photos": {
+        "contents": [
+            {
+                "filename": "https://example.com/photo1.jpg",
+                "id": 1
+            }
+        ],
+        "protected": true
+    }
 }
 ```
 Voila here is our resource.
