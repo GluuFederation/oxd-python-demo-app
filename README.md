@@ -4,7 +4,9 @@ The goal of this app is to show oxd-python at work with a minimal
 amount of application overhead. A cookie is used to track a session id,
 which is persisted using the simple python shelve database interface.
 
-* [Files in cgi-bin](#scripts-in-cgi-bin)
+## Table of Contents
+
+* [Scripts in cgi-bin folder](#scripts-in-cgi-bin-folder)
 * [Deployment Instructions (Ubuntu 14/16)](#deployment-instructions-ubuntu-14-16)
     - [Install oxd](#install-oxd)
     - [Install Python Dependencies](#install-python-dependencies)
@@ -18,7 +20,7 @@ which is persisted using the simple python shelve database interface.
 * [Uninstall Demo](#uninstall-demo)
 
 
-## Scripts in cgi-bin
+## Scripts in cgi-bin folder
 
 *Properties*
 * **constants.py** General Application properties: _Check paths, hostnames and ports_
