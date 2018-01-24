@@ -34,6 +34,10 @@ try:
     ticket = c['ticket'].value
     rpt = client.uma_rp_get_rpt(ticket=ticket)
 
+    # Clear the ticket after it is used
+    c['ticket'] = ''
+    c['ticket']['expires']='Thu, 01 Jan 1970 00:00:00 GMT'
+    # Save token
     c['token_type'] = rpt['token_type']
     c['access_token'] = rpt['access_token']
     log("Writing cookie: \n%s" % str(c))
