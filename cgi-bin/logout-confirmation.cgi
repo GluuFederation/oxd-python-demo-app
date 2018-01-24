@@ -40,6 +40,7 @@ if 'HTTP_COOKIE' in envs:
             messages.append("DB session deleted")
     except:
         messages.append("Cookie found but not session")
+        messages.append(c.keys())
 else:
     messages.append("Session cleared successfully")
 

@@ -38,11 +38,11 @@ try:
     c['session']['expires'] = expiration_in_seconds
     c['session']['domain'] = ".%s" % COOKIE_DOMAIN
     log("Writing cookie: \n%s" % str(c))
+    print c.output()
 except:
     logException("Error processing login callback...")
 
-print c.output()
-print "Content-type: text/html"
+print "Content-Type: text/html"
 print
 print '<HTML><HEAD><meta http-equiv="Refresh" content="0; url=%s"></HEAD></HTML>' % HOME_URL
 

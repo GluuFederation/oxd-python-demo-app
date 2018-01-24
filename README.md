@@ -47,7 +47,7 @@ server and send the ticket to re-fetch RPT on successful authorization
 If you haven't installed oxd, as root you will need to do the following.
 
 1. Install [oxd-server](https://gluu.org/docs/oxd/install/)
-2. Edit `/opt/oxd-server/conf/oxd-conf.json` and enter your oxd license details.
+2. Edit `/opt/oxd-server/conf/oxd-conf.json` and enter server name and your oxd license details.
 Set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to false.
 3. Edit `/opt/oxd-server/conf/oxd-default-site-conf.json` and enter the value for
 `op_host` pointing to your Gluu Server installation.
@@ -95,10 +95,13 @@ Do the following as a local user.
 $ cd ../uma_rs
 $ nohup python app.py > uma_rs.log 2>&1 &
 ```
-**Note:** This server will be accessible only via localhost and will be used by the CGI app to demonstrate UMA.
+**Note:**
+1. This server will be accessible only via localhost and will be used by the CGI app to demonstrate UMA.
 You can run `curl -k https://localhost:8085/api/` to know the API details provided by the RS app.
+2. To stop the server, note down the PID returned by the *nohup* command and run `sudo kill <pid>`
 
-### Testing
+
+## Demo
 
 The url for your application will be `https://your-hostname/cgi-bin/home.cgi`
 
@@ -113,7 +116,7 @@ You should be able to login using an existing account on your Gluu Server.
 
 To test UMA, visit `https://your-hostname/cgi-bin/request-resource.cgi`
 
-### Uninstall demo
+## Uninstall demo
 
 ```
 $ cd oxd-python-demo-app/cgi-bin
