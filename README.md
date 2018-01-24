@@ -92,7 +92,7 @@ Do the following as a local user.
 ### Set up demo UMA Resource Server
 
 ```
-$ cd /usr/lib/cgi-bin/oxd-python/examples/cgi_app/uma_rs
+$ cd ../uma_rs
 $ nohup python app.py > uma_rs.log 2>&1 &
 ```
 **Note:** This server will be accessible only via localhost and will be used by the CGI app to demonstrate UMA.

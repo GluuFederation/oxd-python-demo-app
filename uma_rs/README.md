@@ -14,42 +14,26 @@ and requesting party using oxd.
 ### What does the app do?
 
 * The app acts as a UMA Resource server.
-* Once endpoints are protected with required *Scopes* and *Http Methods*, they can be accessed to verify the protection.
-* When either of the endpoints `/resource/photos/` or `/resource/docs` is accessed, it asks the AS for validity and returns a response based on the Auth Server's answer.
+* When either of the endpoints `/api/photos/` or `/api/docs` is accessed, it checks the Auth Server for access and returns a response based on the Auth Server's answer.
 
 ### Prerequisites
 
-* A Gluu Server to act as the Authorization Server. Use this server's URL
-as `op_host` in the configuration `rs-oxd.cfg`
-* oxd-server or oxd-https-extension
+* A Gluu Server to act as the Authorization Server
+* oxd-server or oxd-https-extension configured with the Gluu server as its `op_host`.
 
 ### Running the app
 
 ```
 # apt install python-pip
 # pip install oxdpython
-# cd /usr/local
-# git clone https://github.com/GluuFederation/oxd-python.git
-# cd oxd-python/examples/uma_rs/
+# cd ~
+# git clone https://github.com/GluuFederation/oxd-python-demo-app.git
+# cd oxd-python-demo-app/uma_rs
 
-# Edit the rs-oxd.cfg to suit your op_host
-# remove the line with oxd_id if present
-
-# run the application
 python app.py
 ```
 
-Now the RS site should be available at `https://localhost:8085`
-
-### Endpoints
-
------------------------------------------------------
-|  Endpoint  | Methods           | Description      |
-|------------|-------------------|------------------|
-| `/`        | GET               | Home page of the application |
-| `/protect` | POST              | URL where the form is submitted from the homepage for resource protection. |
-| `/api/<resource>/` | GET, POST | API for accessing and the resource. `resource`s are *docs* and *photos* |
--------------------------------------------------------------
+Run `curl -k https://localhost:8085/` for API details.
 
 
 ### Typical Resource Protection & Access Cycle
@@ -65,14 +49,19 @@ When the first run the app, a "Setup" link is provided. Clicking it sets up the 
 
 1. Access the URL `https://localhost:8085/api/photos/` from a REST client.
 ```
-$ curl -k https://localhost:8085/api/photos/
-{
-  "access": "denied",
-  "ticket": "030db88e-f07f-4558-bd17-3ac2a7400be3",
-  "www-authenticate_header": "UMA realm=\"rs\",as_uri=\"https://gluu.example.com\",error=\"insufficient_scope\",ticket=\"030db88e-f07f-4558-bd17-3ac2a7400be3\""
-}
+$ curl -k -i https://localhost:8085/api/photos/
+HTTP/1.0 401 UNAUTHORIZED
+Content-Type: text/html; charset=utf-8
+Content-Length: 6
+WWW-Authenticate: UMA realm="rs",as_uri="https://gluu.example.com",error="insufficient_scope",ticket="6cbfe25d-c504-40c8-9326-17be6c07bfb2"
+Server: Werkzeug/0.12.2 Python/2.7.14
+Date: Wed, 24 Jan 2018 13:50:26 GMT
+
+denied
 ```
-2. Use the Requesting Party to generate RPT Token.
+2. Use the **ticket** from the response's `WWW-Authenticate` header in the Requesting Party to generate RPT Token.
+This step is beyond the scope of this application and you should refer to the CGI app in this repository on how
+to get a RPT token as the Requesting Party.
 ```
 {
   "access_token": "ebe71635-1c24-470c-830c-7bc961e33457_140A.BA5B.556E.9842.0E8F.EFF7.F0AF.12E9",
