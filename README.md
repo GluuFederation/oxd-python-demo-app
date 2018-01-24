@@ -103,18 +103,42 @@ You can run `curl -k https://localhost:8085/api/` to know the API details provid
 
 ## Demo
 
+### OpenID Connect
+
 The url for your application will be `https://your-hostname/cgi-bin/home.cgi`
 
-Make sure that the web server can be reached by your local browser. You should
+![home](images/home.png)
+
+![visiting authorization URL](images/login.png)
+
+![authorizing app](images/authorize.png)
+
+![session active](images/session-active.png)
+
+![logout confirmation](images/logout-confirmation.png)
+
+### UMA Requesting Party
+
+To test UMA, visit `https://your-hostname/cgi-bin/request-resource.cgi`
+
+![request resource](images/uma-request-fail.png)
+
+![get rpt](images/uma-get-rpt.png)
+
+![resource obtained](images/uma-request-success.png)
+
+
+### Troubleshooting
+
+* Make sure that the web server can be reached by your local browser. You should
 also make sure that the server that is running the cgi scripts can reach the
 hostname of the Gluu Server (i.e. use DNS or update your `/etc/hosts` file).
 
-To debug, check the application log, which defaults to
+* To debug, check the application log, which defaults to
 `/var/log/samleapp/app.log`, and the oxd log in `/var/log/oxd-server.log`
 
-You should be able to login using an existing account on your Gluu Server.
+* You should be able to login using an existing account on your Gluu Server.
 
-To test UMA, visit `https://your-hostname/cgi-bin/request-resource.cgi`
 
 ## Uninstall demo
 
