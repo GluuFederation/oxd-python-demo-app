@@ -7,6 +7,7 @@ from appLog import *
 from constants import *
 
 oxc = oxdpython.Client(CONFIG_FILE)
+oxc.register_site()
 
 # get the authorization url from the gluu-server and redirect
 auth_url = oxc.get_authorization_url()
@@ -16,4 +17,3 @@ print "Location: ", auth_url, "\r\n"
 print "Connection: close \r\n"
 print ""
 print "Redirecting"
-
