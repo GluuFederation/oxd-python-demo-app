@@ -1,3 +1,9 @@
+# Application Preferences
+COOKIE_DOMAIN = 'www.example.com'
+TITLE = "World's Simplest Web App"
+EXPIRATION_IN_MINUTES = 30
+TZ = 'EST+05EDT,M4.1.0,M10.5.0'
+
 # Folders
 CGI_BIN = '/usr/lib/cgi-bin'
 DONT_INSTALL_LIST = ['setupDemo.py', 'demosite.cfg', 'cleanupDemo.py']
@@ -8,12 +14,6 @@ DB_FILENAME = '%s/sessionDB' % APP_FOLDER
 CONFIG_FILE_ORIGINAL = 'demosite.cfg'
 CONFIG_FILE = '%s/demosite.cfg' % APP_FOLDER
 LOG_FN = '%s/app.log' % APP_FOLDER
-
-# Application Preferences
-TITLE = "World's Simplest Web App"
-COOKIE_DOMAIN = 'www.example.com'
-EXPIRATION_IN_MINUTES = 30
-TZ = 'EST+05EDT,M4.1.0,M10.5.0'
 
 # Application URLs
 HOME_URL = '/cgi-bin/home.cgi'
