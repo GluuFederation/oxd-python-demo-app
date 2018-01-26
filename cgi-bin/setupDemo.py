@@ -30,13 +30,16 @@ db.close()
 log("Database created: %s " % DB_FILENAME)
 
 # Copy the default config file to the live location
-os.system("/bin/cp %s %s" % (CONFIG_FILE_ORIGINAL, CONFIG_FILE))
-log("Copied %s to %s" % (CONFIG_FILE_ORIGINAL, CONFIG_FILE))
+demosite_cfg = DEMOSITE_CFG % tuple(4 * [COOKIE_DOMAIN])
+f = open(CONFIG_FILE, 'w')
+f.write(demosite_cfg)
+f.close()
+log("Wrote config file to %s" % CONFIG_FILE)
 
 # Copy files to cgi-bin
 cgi_files = ls(DONT_INSTALL_LIST)
 for fn in cgi_files:
-    isCGI = ('.cgi' == fn[-4:]) 
+    isCGI = ('.cgi' == fn[-4:])
     os.system("/bin/cp %s %s" % (fn, CGI_BIN))
     if isCGI:
         os.system("/bin/chmod 555 %s/%s" % (CGI_BIN, fn))
