@@ -6,6 +6,7 @@ from app_config import RESOURCES
 
 from flask import Flask, request, jsonify, abort, make_response
 from oxdpython.exceptions import InvalidRequestError
+from oxdpython.utils import ResourceSet
 
 app = Flask(__name__)
 this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -23,33 +24,20 @@ def index():
 @app.route('/setup/')
 def setup_resource_server():
     oxc.register_site()
-    resources = []
-    protected = []
-    unprotected = []
+    rset = ResourceSet()
+
     for k, resource in RESOURCES.iteritems():
         path = "/api/{0}/".format(k)
         if resource['protected']:
-            scope_map = resource['scope_map']
-            conditions = [{"httpMethods": [method], "scopes": scopes}
-                          for method, scopes in scope_map.iteritems()]
-            resources.append({
-                "path": path,
-                "conditions": conditions
-            })
-            protected.append(path)
-        else:
-            unprotected.append(path)
+            r = rset.add(path)
+            for method, scope in resource['scope_map'].iteritems():
+                r.set_scope(method, scope)
 
-    if not oxc.uma_rs_protect(resources):
+    if not oxc.uma_rs_protect(rset.dump()):
         return jsonify({"error": "UMA protection failed. Check oxd-server logs."})
 
-    response_dict = {
-        'protected_resources': protected,
-        'unprotected_resources': unprotected
-    }
-
     app.config['FIRST_RUN'] = False
-    return jsonify(response_dict)
+    return api()
 
 @app.route('/api/')
 def api():
@@ -57,8 +45,9 @@ def api():
         return setup_resource_server()
 
     response = {
-        "resource_endpoints": ["/api/{0}".format(k) for k in RESOURCES.keys()],
-        "resources": RESOURCES
+        "resources": [{"endpoint": "/api/{0}".format(k),
+                       "uma_protected": RESOURCES[k]["protected"]}
+                      for k in RESOURCES.keys()],
     }
     return jsonify(response)
 
@@ -70,7 +59,7 @@ def api_resource(rtype):
     :return: json
     """
     if app.config.get('FIRST_RUN'):
-        return setup_resource_server()
+        setup_resource_server()
 
     resources = RESOURCES.keys()
     status = {'access': 'denied'}
@@ -85,7 +74,7 @@ def api_resource(rtype):
         print request.path, " is unprotected. Denying access."
 
     if not status['access'] == 'granted':
-        response =  make_response(status['access'], 401)
+        response =  make_response(status['access'], 401, {"Content-Type": "text/plain"})
         if 'www-authenticate_header' in status:
             response.headers['WWW-Authenticate'] = status['www-authenticate_header']
         return response
