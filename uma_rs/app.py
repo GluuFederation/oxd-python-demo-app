@@ -1,8 +1,9 @@
 import os
 import oxdpython
 import random
+import traceback
 
-from app_config import SCOPE_MAP, RESOURCES
+from app_config import RESOURCES
 
 from flask import Flask, request, jsonify, abort, make_response
 
@@ -13,7 +14,6 @@ oxc = oxdpython.Client(config)
 
 app.config['FIRST_RUN'] = True
 
-
 @app.route('/')
 def index():
     if app.config.get('FIRST_RUN'):
@@ -23,15 +23,15 @@ def index():
 @app.route('/setup/')
 def setup_resource_server():
     oxc.register_site()
-    conditions = [{"httpMethods": [method], "scopes": scopes}
-                  for method, scopes in SCOPE_MAP.iteritems()]
-
     resources = []
     protected = []
     unprotected = []
     for k, resource in RESOURCES.iteritems():
         path = "/api/{0}/".format(k)
         if resource['protected']:
+            scope_map = resource['scope_map']
+            conditions = [{"httpMethods": [method], "scopes": scopes}
+                          for method, scopes in scope_map.iteritems()]
             resources.append({
                 "path": path,
                 "conditions": conditions
@@ -62,7 +62,7 @@ def api():
     }
     return jsonify(response)
 
-@app.route('/api/<rtype>/', methods=['GET', 'POST'])
+@app.route('/api/<rtype>/', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def api_resource(rtype):
     """Function that fetches or adds a particular resource.
 
@@ -73,7 +73,7 @@ def api_resource(rtype):
         return setup_resource_server()
 
     resources = RESOURCES.keys()
-    status = {'access': 'granted'}
+    status = {'access': 'denied'}
     try:
         rpt = request.headers.get('Authorization')
         if rpt:
@@ -81,6 +81,7 @@ def api_resource(rtype):
         status = oxc.uma_rs_check_access(rpt=rpt, path=request.path,
                                          http_method=request.method)
     except:
+        traceback.print_exc()
         print request.path, " seems unprotected"
 
     if not status['access'] == 'granted':
@@ -111,4 +112,3 @@ def api_resource(rtype):
 if __name__ == '__main__':
     app.config.from_object('app_config')
     app.run(ssl_context='adhoc')
-

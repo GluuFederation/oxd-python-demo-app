@@ -5,16 +5,11 @@ DEBUG = True
 RESOURCES = {
     "photos": {
         "content": [{'id': 1, 'filename': 'https://example.com/photo1.jpg'}],
-        "protected": True
+        "protected": True,
+        "scope_map": {"GET": ["view", "all"], "POST": ["add","all"]}
     },
     "docs": {
         "content": [{'id': 1, 'filename': 'https://example.com/document1.pdf'}],
         "protected": False
     }
-}
-SCOPE_MAP = {
-    "GET": ["https://resource.example.com/uma/scope/view",
-            "https://resource.example.com/uma/scope/all"],
-    "POST": ["https://resource.example.com/uma/scope/add",
-            "https://resource.example.com/uma/scope/all"],
 }
