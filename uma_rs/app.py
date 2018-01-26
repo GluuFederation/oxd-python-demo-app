@@ -82,7 +82,7 @@ def api_resource(rtype):
     if rtype not in resources:
         abort(404)
 
-    resource = RESOURCES[rtype]
+    resource = RESOURCES[rtype]['content']
 
     if request.method == 'GET':
         return jsonify({rtype: resource})
