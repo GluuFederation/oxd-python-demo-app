@@ -18,17 +18,12 @@ GET_AUTH_URL = '/cgi-bin/redirect-to-login.cgi'
 GET_LOGOUT_URL = '/cgi-bin/redirect-to-logout.cgi'
 LOGOUT_CONFIRM = '/cgi-bin/logout-confirmation.cgi'
 
-<<<<<<< HEAD
 # Other stuff
 DONT_INSTALL_LIST = ['setupDemo.py', 'cleanupDemo.py']
 RS_BASE_URL = 'https://localhost:8085/'
 TITLE = "World's Simplest Web App"
 EXPIRATION_IN_MINUTES = 30
 TZ = 'EST+05EDT,M4.1.0,M10.5.0'
-=======
-# Resource Server URL
-RS_BASE_URL = 'https://localhost:8085'
->>>>>>> origin/master
 
 # oxd config file template
 DEMOSITE_CFG = """
@@ -46,4 +41,4 @@ client_name = World's Simplest Web App
 contacts = admin@example.com
 scope = openid,email,profile
 grant_types = client_credentials,authorization_code
-"""
+""" % tuple(4 * [COOKIE_DOMAIN])

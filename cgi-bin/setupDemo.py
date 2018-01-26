@@ -30,7 +30,7 @@ db.close()
 log("Database created: %s " % DB_FILENAME)
 
 # Copy the default config file to the live location
-demosite_cfg = DEMOSITE_CFG % tuple(4 * [COOKIE_DOMAIN])
+demosite_cfg = DEMOSITE_CFG 
 f = open(CONFIG_FILE, 'w')
 f.write(demosite_cfg)
 f.close()
