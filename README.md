@@ -47,6 +47,8 @@ cookie and DB session are removed.
 file permissions.
 
 *UMA demo*
+* **uma-home.cgi** Script that lists the resource endpoints in the UMA Resource
+Server
 * **request-resource.cgi** Script that requests data from UMA Resource Server
 * **get-rpt.cgi** Script that gets the RPT token from the Auth Server
 * **callback-claims.cgi** The script parses the response from Authorization
@@ -135,11 +137,15 @@ The url for your application will be `https://your-hostname/cgi-bin/home.cgi`
 
 ### UMA Requesting Party
 
-To test UMA, visit `https://your-hostname/cgi-bin/request-resource.cgi`
+To test UMA, visit `https://your-hostname/cgi-bin/uma-home.cgi`
+
+![uma home](images/uma-home.png)
 
 ![request resource](images/uma-request-fail.png)
 
 ![get rpt](images/uma-get-rpt.png)
+
+![home with rpt](images/uma-home-with-rpt.png)
 
 ![resource obtained](images/uma-request-success.png)
 

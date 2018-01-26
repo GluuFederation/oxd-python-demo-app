@@ -42,7 +42,7 @@ try:
     c['access_token'] = rpt['access_token']
     log("Writing cookie: \n%s" % str(c))
     print c.output()
-    message = "Successfully received RPT. <a href='/cgi-bin/request-resource.cgi'>Get Resource using access token</a>"
+    message = "Successfully received RPT. <a href='/cgi-bin/uma-home.cgi'>Get Resource using access token</a>"
 except NeedInfoError as ne:
     if 'redirect_user' in ne.details:
         claims_url = client.uma_rp_get_claims_gathering_url(ne.details['ticket'])

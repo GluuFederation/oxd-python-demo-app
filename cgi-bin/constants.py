@@ -22,7 +22,7 @@ GET_LOGOUT_URL = '/cgi-bin/redirect-to-logout.cgi'
 LOGOUT_CONFIRM = '/cgi-bin/logout-confirmation.cgi'
 
 # Resource Server URL
-RS_BASE_URL = 'https://localhost:8085/'
+RS_BASE_URL = 'https://localhost:8085'
 
 DEMOSITE_CFG = """
 [oxd]

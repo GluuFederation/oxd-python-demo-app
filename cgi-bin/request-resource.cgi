@@ -25,7 +25,9 @@ html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
 </HTML>
 """
 
-api_url = RS_BASE_URL + "api/photos/"
+fs = cgi.FieldStorage()
+api = fs.getfirst("api", "")
+api_url = RS_BASE_URL + api
 TITLE = 'UMA RP Accessing %s' % api_url
 envs = os.environ
 session = get_session(envs)
