@@ -1,11 +1,11 @@
 import os
 import oxdpython
 import random
-import traceback
 
 from app_config import RESOURCES
 
 from flask import Flask, request, jsonify, abort, make_response
+from oxdpython.exceptions import InvalidRequestError
 
 app = Flask(__name__)
 this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -80,16 +80,15 @@ def api_resource(rtype):
             rpt = rpt.split()[1]
         status = oxc.uma_rs_check_access(rpt=rpt, path=request.path,
                                          http_method=request.method)
-    except:
-        traceback.print_exc()
-        print request.path, " seems unprotected"
+    except InvalidRequestError as e:
+        print str(e)
+        print request.path, " is unprotected. Denying access."
 
     if not status['access'] == 'granted':
         response =  make_response(status['access'], 401)
         if 'www-authenticate_header' in status:
             response.headers['WWW-Authenticate'] = status['www-authenticate_header']
         return response
-
 
     if rtype not in resources:
         abort(404)
