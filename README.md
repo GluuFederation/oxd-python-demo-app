@@ -58,7 +58,7 @@ Server if claims gathering was necessary.
 * **appLog.py** Module to centralize logging code
 * **common.py** Place to put some shared methods
 
-## Deployment Instructions (Ubuntu 14/16)
+## Deployment Instructions
 
 ###  Install oxd
 
@@ -78,7 +78,9 @@ specify the Gluu Server hostname.
 
 ### Install and configure Apache 2
 
-As root, install the following commands to enable ssl and cgi.
+Following are instructions for Debian/Ubuntu. For Redhat/Centos,
+configure ssl and check the `cgi-bin` location, which you may
+have to update in `constants.py`.
 
 ```
 # apt install apache2
@@ -97,22 +99,22 @@ As root, install the following commands to enable ssl and cgi.
 properties to suit your preference.
 1. `$ sudo python setupDemo.py`
 
-### Setup demo UMA Resource Server
+### Start the UMA Resource Server
+
+This server will be accessible only via localhost and will be used by the CGI
+app to demonstrate UMA. Run `curl -k https://localhost:8085/api/` to
+test the application, which should return a list of what api's are available.
 
 ```
 $ cd ../uma_rs
 $ nohup python app.py > uma_rs.log 2>&1 &
 ```
-**Note:**
-1. This server will be accessible only via localhost and will be used by the CGI app to demonstrate UMA.
-You can run `curl -k https://localhost:8085/api/` to know the API details provided by the RS app.
-2. To stop the server, note down the PID returned by the *nohup* command and run `sudo kill <pid>`
 
 ## Demo
 
 ### OpenID Connect
 
-The url for your application will be `https://your-hostname/cgi-bin/home.cgi`
+Start the demo by navigating to `https://(your-hostname)/cgi-bin/home.cgi`
 
 ![home](images/home.png)
 
