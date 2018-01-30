@@ -1,15 +1,12 @@
-# Application Preferences
+# Use the hostname of your web server here.
+# Also used as hostname of redirect uri's
 COOKIE_DOMAIN = 'www.example.com'
-TITLE = "World's Simplest Web App"
-EXPIRATION_IN_MINUTES = 30
-TZ = 'EST+05EDT,M4.1.0,M10.5.0'
 
 # Folders
-CGI_BIN = '/usr/lib/cgi-bin'
-DONT_INSTALL_LIST = ['setupDemo.py', 'cleanupDemo.py']
+CGI_BIN = '/usr/lib/cgi-bin'      # check apache2 conf for cgi-bin path
+APP_FOLDER = '/var/log/sampleapp' # Writable by the web server :-(
 
-# Make sure these files are writable by the web server
-APP_FOLDER = '/var/log/sampleapp'
+# Files
 DB_FILENAME = '%s/sessionDB' % APP_FOLDER
 CONFIG_FILE_ORIGINAL = 'demosite.cfg'
 CONFIG_FILE = '%s/demosite.cfg' % APP_FOLDER
@@ -21,9 +18,14 @@ GET_AUTH_URL = '/cgi-bin/redirect-to-login.cgi'
 GET_LOGOUT_URL = '/cgi-bin/redirect-to-logout.cgi'
 LOGOUT_CONFIRM = '/cgi-bin/logout-confirmation.cgi'
 
-# Resource Server URL
-RS_BASE_URL = 'https://localhost:8085'
+# Other stuff
+DONT_INSTALL_LIST = ['setupDemo.py', 'cleanupDemo.py']
+RS_BASE_URL = 'https://localhost:8085/'
+TITLE = "World's Simplest Web App"
+EXPIRATION_IN_MINUTES = 30
+TZ = 'EST+05EDT,M4.1.0,M10.5.0'
 
+# oxd config file template
 DEMOSITE_CFG = """
 [oxd]
 host = localhost
@@ -39,4 +41,4 @@ client_name = World's Simplest Web App
 contacts = admin@example.com
 scope = openid,email,profile
 grant_types = client_credentials,authorization_code
-"""
+""" % tuple(4 * [COOKIE_DOMAIN])

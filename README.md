@@ -11,7 +11,7 @@ which is persisted using the simple python shelve database interface.
     - [Install oxd](#install-oxd)
     - [Install Python Dependencies](#install-python-dependencies)
     - [Install and Configure Apache 2](#install-and-configure-apache-2)
-    - [Install Demo](#install-demo) 
+    - [Install Demo](#install-demo)
     - [Setup demo UMA Resource Server](#setup-demo-uma-resource-server)
 * [Demo](#demo)
     - [OpenID Connect](#openid-connect)
@@ -24,7 +24,6 @@ which is persisted using the simple python shelve database interface.
 
 *Properties*
 * **constants.py** General Application properties: _Check paths, hostnames and ports_
-* **demosite.cfg** oxd properties: _Update with your web URL_
 
 *Helper scripts to install / uninstall*
 * **setupDemo.py** Helper script used to create app folder and install cgi scripts.
@@ -47,28 +46,27 @@ cookie and DB session are removed.
 file permissions.
 
 *UMA demo*
+* **uma_rs** Folder contains a Flask app that runs on port localhost:8085
 * **uma-home.cgi** Script that lists the resource endpoints in the UMA Resource
 Server
 * **request-resource.cgi** Script that requests data from UMA Resource Server
 * **get-rpt.cgi** Script that gets the RPT token from the Auth Server
 * **callback-claims.cgi** The script parses the response from Authorization
-server and send the ticket to re-fetch RPT on successful authorization
+Server if claims gathering was necessary.
 
 *Helper modules*
 * **appLog.py** Module to centralize logging code
 * **common.py** Place to put some shared methods
 
-## Deployment Instructions (Ubuntu 14/16)
+## Deployment Instructions
 
 ###  Install oxd
-
-If you haven't installed oxd, as root you will need to do the following.
 
 1. Install [oxd-server](https://gluu.org/docs/oxd/install/)
 2. Edit `/opt/oxd-server/conf/oxd-conf.json` and enter server name and your oxd license details.
 Set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to false.
-3. Edit `/opt/oxd-server/conf/oxd-default-site-conf.json` and enter the value for
-`op_host` pointing to your Gluu Server installation.
+3. Edit `/opt/oxd-server/conf/oxd-default-site-conf.json` and for`op_host`,
+specify the Gluu Server hostname.
 4. Start oxd-server `/etc/init.d/oxd-server start`
 
 ### Install python dependencies
@@ -77,10 +75,12 @@ Set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to 
 # apt install python-pip
 # pip install oxdpython flask pyOpenSSL
 ```
-    
+
 ### Install and configure Apache 2
 
-As root, install the following commands to enable ssl and cgi.
+Following are instructions for Debian/Ubuntu. For Redhat/Centos,
+configure ssl and check the `cgi-bin` location, which you may
+have to update in `constants.py`.
 
 ```
 # apt install apache2
@@ -93,37 +93,28 @@ As root, install the following commands to enable ssl and cgi.
 
 ### Install demo
 
-Do the following as a local user. 
+1. `$ git clone https://github.com/GluuFederation/oxd-python-demo-app.git`
+1. `$ cd oxd-python-demo-app/cgi-bin`
+1.  Update the value for `COOKIE_DOMAIN` in `constants.py`, and any other system
+properties to suit your preference.
+1. `$ sudo python setupDemo.py`
 
-```
- $ git clone https://github.com/GluuFederation/oxd-python-demo-app.git
- $ cd oxd-python-demo-app/cgi-bin
-```
+### Start the UMA Resource Server
 
-* Update the value for `COOKIE_DOMAIN` in `constants.py`
-* Change the domain in `demosite.cfg` for your environment.
-* Setup demo
-```
- $ sudo python setupDemo.py
-```
-
-### Setup demo UMA Resource Server
+This server will be accessible only via localhost and will be used by the CGI
+app to demonstrate UMA. Run `curl -k https://localhost:8085/api/` to
+test the application, which should return a list of what api's are available.
 
 ```
 $ cd ../uma_rs
 $ nohup python app.py > uma_rs.log 2>&1 &
 ```
-**Note:**
-1. This server will be accessible only via localhost and will be used by the CGI app to demonstrate UMA.
-You can run `curl -k https://localhost:8085/api/` to know the API details provided by the RS app.
-2. To stop the server, note down the PID returned by the *nohup* command and run `sudo kill <pid>`
-
 
 ## Demo
 
 ### OpenID Connect
 
-The url for your application will be `https://your-hostname/cgi-bin/home.cgi`
+Start the demo by navigating to `https://(your-hostname)/cgi-bin/home.cgi`
 
 ![home](images/home.png)
 
