@@ -45,7 +45,7 @@ def api():
         return setup_resource_server()
 
     response = {
-        "resources": [{"endpoint": "/api/{0}".format(k),
+        "resources": [{"endpoint": "/api/{0}/".format(k),
                        "uma_protected": RESOURCES[k]["protected"]}
                       for k in RESOURCES.keys()],
     }

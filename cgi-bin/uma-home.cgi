@@ -8,6 +8,8 @@ import Cookie
 import os
 import cgi
 import oxdpython
+import sys
+import urlparse
 
 from constants import *
 from common import *
@@ -19,7 +21,7 @@ html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
 <BODY>
 <H1>%(title)s</H1>
 
-<p>Available Resource Endpoints</p>
+<h3>Available Resource Endpoints</h3>
 <table>
     <tr>
         <th>API Endpoint</th>
@@ -30,16 +32,19 @@ html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
     %(endpoints)s
         
 </table>
+<hr>
 
-<p>UMA RPT Access Token Token</p>
+<h3>UMA RPT Access Token Token</h3>
 <pre><code>
 %(rpt_token)s
 </code></pre>
+<hr>
 
-<p>PCT</p>
+<h3>PCT</h3>
 <pre><code>
-%(pct)
+%(pct)s
 </code></pre>
+<hr>
 
 %(message)s
 <hr>
@@ -72,7 +77,7 @@ try:
         </td>
         <td>{uma_protected}</td>
         <td> 
-            <a href="/cgi-bin/uma-home.cgi?api={endpoint}">Request Resource</a>
+            <a href="/cgi-bin/uma-home.cgi?api={endpoint}">Get Resource</a>
         </td>
     </tr>
     """
@@ -81,50 +86,45 @@ try:
     endpoints = "\n".join(links)
     message = "Click on <strong>Request Resource</strong> to fetch the resource"
 except urllib2.HTTPError:
+    endpoints = ""
     message = "Failed to get resources from the UMA RS"
     logError(message)
     logException(traceback.format_exc())
 except TypeError:
+    endpoints = ""
     message = "The data received from the UMA RS doesn't meet expectation."
     logError(message)
     logException(traceback.format_exc())
 
-# Check if there is any RPT token stored and set it up
-if 'token_type' in c and 'access_token' in c:
-    rpt_token = "{0} {1}".format(c.get('token_type'), c.get('access_token'))
-else:
-    rpt_token = "No RPT Token present"
 
-# Check if there is PCT
-if 'pct' in c:
-    pct = c.get("pct")
-else:
-    pct = "No PCT present"
-
-# Request the resources if requested by the user
-fs = cgi.FieldStorage()
-api_url = fs.getfirst('api', '')
-
-def get_resource(url, token_type, access_token):
+def get_resource(url, cookie):
     """Makes a request to the given URL using the token type and access token
-    as the Authorization header
+    available in the cookie as the Authorization header. It clears the
+    access_token from the cookie after using it
 
     :param url: url of the resource to access
-    :param token_type: token type specified in the RPT
-    :param access_token: access token provided by the RPT
+    :param cookie: cookie which holds the RPT values
     :return: response message or an error message as string
     """
+    token_type = cookie.get('token_type')
+    access_token = cookie.get('access_token')
     try:
         log("Requesting resource with RPT: %s" % url)
         req = urllib2.Request(url)
         req.add_header('Authorization', '%s %s' % (token_type, access_token))
-        response = urllib2.urlopen(req, context=ctx)
-        message = "Response from Resource Server: <pre>%s</pre>" % response.read()
+        reply = urllib2.urlopen(req, context=ctx)
+        msg = "Response from Resource Server: <pre>%s</pre>" % reply.read()
     except:
-        message = 'Request for resource at %s failed. See logs.' % api_url
-        logError(message)
+        msg = 'Request for resource at %s failed. See logs.' % api_url
+        logError(msg)
         logException(traceback.format_exc())
-    return message
+
+    cookie['access_token'] = ''
+    cookie['access_token']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    cookie['token_type'] = ''
+    cookie['token_type']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    return msg
+
 
 def get_ticket(url):
     """Makes a plain HTTP GET request to the url expecting a 401 Unauthorized,
@@ -134,8 +134,8 @@ def get_ticket(url):
     :return: ticket if 'www-authenticate' is available in headers, None otherwise
     """
     try:
-        log("Requesting ticket from RS")
-        urllib2.urlopen(api_url, context=ctx)
+        log("Requesting ticket from RS for url: %s" % url)
+        urllib2.urlopen(url, context=ctx)
         # the request is expected to fail, if it succeeds, then no ticket
         ticket = None
     except urllib2.HTTPError as error_response:
@@ -154,45 +154,60 @@ def get_ticket(url):
     return ticket
 
 
-if api_url:
-    api_url = RS_BASE_URL + api_url
-    # After claims-gathering the callback redirects with the ticket
-    if fs.getfirst('authorization_state') == 'claims_submitted':
-        ticket = fs.getfirst('ticket')
-    elif fs.getfirst('authorization_state') != 'claims_submitted':
-        ticket = fs.getfirst('ticket')
-        logError("Received authorization state: %s" % fs.getfirst('authorization_state'))
-        message = "Unsuitable Authorization State: %s" % fs.getfirst('authorization_state')
-    else:
-        # In case of the resource request, new ticket is generated
-        ticket = get_ticket(api_url)
+def fetch_rpt(ticket, cookie):
+    """Fetches RPT using the ticket and stores the obtained values in the cookie
 
+    :param ticket: ticket to be passed to the oxd server to get RPT
+    :param cookie: cookie to store the received values
+    :return: message if any
+    """
     try:
-       rpt = client.uma_rp_get_rpt(ticket)
-       message = get_resource(api_url, rpt['token_type'], rpt['access_token'])
+        rpt = client.uma_rp_get_rpt(ticket)
+        cookie.update(rpt)
+        fail_message = None
     except NeedInfoError as ne:
         if 'redirect_user' in ne.details:
-            message = "Redirecting user to the Authorization server"
-            log(message)
+            log("Redirecting user to the Authorization server")
             claims_url = client.uma_rp_get_claims_gathering_url(ne.details['ticket'])
             print "Location: %s\r\n" % claims_url
             print ""
             print "Redirecting"
+            sys.exit()
         else:
-            message = "Received NeedInfo Error, but no redirect flag present."
-            logError(message)
+            fail_message = "Received NeedInfo Error, but no redirect flag present."
+            logError(fail_message)
             logException(traceback.format_exc())
     except:
-        message = "Failed to get RPT. Look at logs."
-        logError(message)
+        fail_message = "Failed to get RPT. Look at logs."
+        logError(fail_message)
         logException(traceback.format_exc())
+    return fail_message
 
+# Request the resources if requested by the user
+fs = cgi.FieldStorage()
+if 'api' in fs:
+    api_url = urlparse.urljoin(RS_BASE_URL, fs.getfirst('api'))
+    if 'token_type' in c and 'access_token' in c:
+        message = get_resource(api_url, c)
+    else:
+        ticket = get_ticket(api_url)
+        fail_msg = fetch_rpt(ticket, c)
+        if fail_msg:
+            message = fail_msg
+        else:
+            message = get_resource(api_url, c)
+
+# When the page is called after claims gathering by the Auth Server
+if 'ticket' in fs:
+    ticket = fs.getfirst('ticket')
+    message = fetch_rpt(ticket, c)
 
 d = {}
 d['title'] = TITLE
 d['message'] = message
-d['rpt_token'] = rpt_token
-d['pct'] = pct
+d['rpt_token'] = c['access_token'] if 'access_token' in c else "No RPT present"
+d['pct'] = c['pct'] if 'pct' in c else "No PCT present"
+d['endpoints'] = endpoints
 
 print "Content-type: text/html\r\n"
 print ""
