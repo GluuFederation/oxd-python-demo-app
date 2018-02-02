@@ -56,13 +56,15 @@ html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
 """
 TITLE = "UMA RP Home Page"
 
+ctx = None
 if hasattr(ssl, 'create_default_context'):
     ctx = ssl.create_default_context()
-else:
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+elif hasattr(ssl, 'SSLContext'):
     ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
 
 c = Cookie.SimpleCookie()
 if 'HTTP_COOKIE' in os.environ:
@@ -71,7 +73,10 @@ if 'HTTP_COOKIE' in os.environ:
 
 # Get and list API endpoints
 try:
-    response = urllib2.urlopen(RS_BASE_URL, context=ctx)
+    if ctx:
+        response = urllib2.urlopen(RS_BASE_URL, context=ctx)
+    else:
+        response = urllib2.urlopen(RS_BASE_URL)
     resources = json.loads(response.read())['resources']
     # Generate html links
     link_template = """
@@ -115,7 +120,10 @@ def get_resource(url, token_type, access_token):
         log("Requesting resource with RPT: %s" % url)
         req = urllib2.Request(url)
         req.add_header('Authorization', '%s %s' % (token_type, access_token))
-        reply = urllib2.urlopen(req, context=ctx)
+        if ctx:
+            reply = urllib2.urlopen(req, context=ctx)
+        else:
+            reply = urllib2.urlopen(req)
         msg = "Response from Resource Server: <pre>%s</pre>" % reply.read()
     except:
         msg = 'Request for resource at %s failed. See logs.' % api_url
@@ -134,7 +142,10 @@ def get_ticket(url):
     """
     try:
         log("Requesting ticket from RS for url: %s" % url)
-        urllib2.urlopen(url, context=ctx)
+        if ctx:
+            urllib2.urlopen(url, context=ctx)
+        else:
+            urllib2.urlopen(url)
         # the request is expected to fail, if it succeeds, then no ticket
         ticket = None
     except urllib2.HTTPError as error_response:
