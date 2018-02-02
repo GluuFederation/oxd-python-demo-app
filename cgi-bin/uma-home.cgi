@@ -56,7 +56,11 @@ html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
 """
 TITLE = "UMA RP Home Page"
 
-ctx = ssl.create_default_context()
+if hasattr(ssl, 'create_default_context'):
+    ctx = ssl.create_default_context()
+else:
+    ctx = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
@@ -84,7 +88,7 @@ try:
     links = [link_template.format(**r)
              for r in resources]
     endpoints = "\n".join(links)
-    message = "Click on <strong>Request Resource</strong> to fetch the resource"
+    message = "Click on <strong>Get Resource</strong> to fetch the resource"
 except urllib2.HTTPError:
     endpoints = ""
     message = "Failed to get resources from the UMA RS"
@@ -97,17 +101,16 @@ except TypeError:
     logException(traceback.format_exc())
 
 
-def get_resource(url, cookie):
+def get_resource(url, token_type, access_token):
     """Makes a request to the given URL using the token type and access token
     available in the cookie as the Authorization header. It clears the
     access_token from the cookie after using it
 
     :param url: url of the resource to access
-    :param cookie: cookie which holds the RPT values
+    :param token_type: token type from RPT
+    :param access_token: access token from RPT
     :return: response message or an error message as string
     """
-    token_type = cookie.get('token_type')
-    access_token = cookie.get('access_token')
     try:
         log("Requesting resource with RPT: %s" % url)
         req = urllib2.Request(url)
@@ -119,10 +122,6 @@ def get_resource(url, cookie):
         logError(msg)
         logException(traceback.format_exc())
 
-    cookie['access_token'] = ''
-    cookie['access_token']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
-    cookie['token_type'] = ''
-    cookie['token_type']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     return msg
 
 
@@ -163,7 +162,9 @@ def fetch_rpt(ticket, cookie):
     """
     try:
         rpt = client.uma_rp_get_rpt(ticket)
-        cookie.update(rpt)
+        cookie['access_token'] = rpt['access_token']
+        cookie['token_type'] = rpt['token_type']
+        cookie['pct'] = rpt['pct']
         fail_message = None
     except NeedInfoError as ne:
         if 'redirect_user' in ne.details:
@@ -188,7 +189,9 @@ fs = cgi.FieldStorage()
 if 'api' in fs:
     api_url = urlparse.urljoin(RS_BASE_URL, fs.getfirst('api'))
     if 'token_type' in c and 'access_token' in c:
-        message = get_resource(api_url, c)
+        token_type = c.get('token_type').value
+        access_token = c.get('access_token').value
+        message = get_resource(api_url, token_type, access_token)
     else:
         ticket = get_ticket(api_url)
         fail_msg = fetch_rpt(ticket, c)
@@ -197,16 +200,24 @@ if 'api' in fs:
         else:
             message = get_resource(api_url, c)
 
+    c['access_token'] = ''
+    c['access_token']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    c['token_type'] = ''
+    c['token_type']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+
 # When the page is called after claims gathering by the Auth Server
 if 'ticket' in fs:
     ticket = fs.getfirst('ticket')
-    message = fetch_rpt(ticket, c)
+    state = fs.getfirst('state')
+    fail_msg = fetch_rpt(ticket, c)
+    if not fail_msg:
+        message = "RPT has been obtained. Click <strong>Get Resource</strong>"
 
 d = {}
 d['title'] = TITLE
 d['message'] = message
-d['rpt_token'] = c['access_token'] if 'access_token' in c else "No RPT present"
-d['pct'] = c['pct'] if 'pct' in c else "No PCT present"
+d['rpt_token'] = c.get('access_token').value if 'access_token' in c else "No RPT present"
+d['pct'] = c.get('pct').value if 'pct' in c else "No PCT present"
 d['endpoints'] = endpoints
 
 print "Content-type: text/html\r\n"
