@@ -11,7 +11,7 @@ messages = []
 def makeList(l):
     s = ""
     for item in l:
-        s = "<LI>%s</LI>\n" % item
+        s += "<LI>%s</LI>\n" % item
     return s
 
 html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
@@ -40,11 +40,12 @@ if 'HTTP_COOKIE' in envs:
             messages.append("DB session deleted")
     except:
         messages.append("Cookie found but not session")
-        messages.append(c.keys())
+        messages.append("Cookies: ")
+        messages.extend(c.keys())
 else:
     messages.append("Session cleared successfully")
 
-log("Logout Confirmation: \n  * %s" % "\n  *".join(messages))
+log("Logout Confirmation: \n  * %s" % "\n * ".join(messages))
 d = {'title': TITLE, 'message': makeList(messages)}
 
 print "Content-type: text/html"

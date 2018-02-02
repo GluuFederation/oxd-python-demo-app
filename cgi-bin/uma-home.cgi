@@ -164,15 +164,19 @@ def get_ticket(url):
     return ticket
 
 
-def fetch_rpt(ticket, cookie):
+def fetch_rpt(ticket, cookie, state=None):
     """Fetches RPT using the ticket and stores the obtained values in the cookie
 
     :param ticket: ticket to be passed to the oxd server to get RPT
     :param cookie: cookie to store the received values
+    :param state: OPTIONAL state value
     :return: message if any
     """
     try:
-        rpt = client.uma_rp_get_rpt(ticket)
+        if state:
+            rpt = client.uma_rp_get_rpt(ticket, state=state, pct=cookie.get('pct').value)
+        else:
+            rpt = client.uma_rp_get_rpt(ticket)
         cookie['access_token'] = rpt['access_token']
         cookie['token_type'] = rpt['token_type']
         cookie['pct'] = rpt['pct']
@@ -198,19 +202,25 @@ def fetch_rpt(ticket, cookie):
 # Request the resources if requested by the user
 fs = cgi.FieldStorage()
 if 'api' in fs:
+    log("Received request for resource: %s" % fs.getfirst('api'))
     api_url = urlparse.urljoin(RS_BASE_URL, fs.getfirst('api'))
+
     if 'token_type' in c and 'access_token' in c:
+        log('RPT access token present in cookie. Using it to get resource.')
         token_type = c.get('token_type').value
         access_token = c.get('access_token').value
         message = get_resource(api_url, token_type, access_token)
     else:
+        log('No RPT available. Generating new ticket and fetching RPT.')
         ticket = get_ticket(api_url)
         fail_msg = fetch_rpt(ticket, c)
         if fail_msg:
             message = fail_msg
         else:
+            log("Getting the resource using the RPT.")
             message = get_resource(api_url, c)
 
+    log("Clearing the access_token from the cookie")
     c['access_token'] = ''
     c['access_token']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     c['token_type'] = ''
@@ -220,7 +230,8 @@ if 'api' in fs:
 if 'ticket' in fs:
     ticket = fs.getfirst('ticket')
     state = fs.getfirst('state')
-    fail_msg = fetch_rpt(ticket, c)
+    log("Received ticket in URL callback. Fetching new RPT.")
+    fail_msg = fetch_rpt(ticket, c, state=state)
     if not fail_msg:
         message = "RPT has been obtained. Click <strong>Get Resource</strong>"
 
