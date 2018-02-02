@@ -218,13 +218,17 @@ if 'api' in fs:
             message = fail_msg
         else:
             log("Getting the resource using the RPT.")
-            message = get_resource(api_url, c)
+            token_type = c.get('token_type').value
+            access_token = c.get('access_token').value
+            message = get_resource(api_url, token_type, access_token)
 
     log("Clearing the access_token from the cookie")
     c['access_token'] = ''
     c['access_token']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     c['token_type'] = ''
     c['token_type']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    c['pct'] = ''
+    c['pct']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
 
 # When the page is called after claims gathering by the Auth Server
 if 'ticket' in fs:
