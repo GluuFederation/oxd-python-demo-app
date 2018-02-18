@@ -4,12 +4,12 @@ DEBUG = True
 
 RESOURCES = {
     "photos": {
-        "content": [{'id': 1, 'filename': 'https://example.com/photo1.jpg'}],
         "protected": True,
+        "content": [{'id': 1, 'filename': 'https://example.com/photo1.jpg'}],
         "scope_map": {"GET": ["view", "all"], "POST": ["add","all"]}
     },
     "docs": {
-        "content": [{'id': 1, 'filename': 'https://example.com/document1.pdf'}],
-        "protected": False
+        "protected": False,
+        "content": [{'id': 2, 'filename': 'https://example.com/document1.pdf'}]
     }
 }

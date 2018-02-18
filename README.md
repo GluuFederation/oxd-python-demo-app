@@ -1,8 +1,8 @@
 # Demo CGI
 
-The goal of this app is to show oxd-python at work with a minimal
+The goal of this demo is to show oxd-python at work with a minimal
 amount of application overhead. A cookie is used to track a session id,
-which is persisted using the simple python shelve database interface.
+which is persisted using the python shelve database interface.
 
 ## Table of Contents
 
@@ -101,14 +101,17 @@ properties to suit your preference.
 
 ### Start the UMA Resource Server
 
-This server will be accessible only via localhost and will be used by the CGI
-app to demonstrate UMA. Run `curl -k https://localhost:8085/api/` to
-test the application, which should return a list of what api's are available.
+This server publishes sample api's which return static data. You can use
+the properties file to define which api's are available, and what scopes
+are required for access.   
 
 ```
 $ cd ../uma_rs
 $ nohup python app.py > uma_rs.log 2>&1 &
+$ curl -k https://localhost:8085/api/
 ```
+
+The `curl` command should return a JSON document listing the available api's.
 
 ## Demo
 

@@ -1,5 +1,5 @@
 # Use the hostname of your web server here.
-# Also used as hostname of redirect uri's
+# Also used in the redirect uri's
 COOKIE_DOMAIN = 'www.example.com'
 
 # Folders
@@ -8,9 +8,9 @@ APP_FOLDER = '/var/log/sampleapp' # Writable by the web server :-(
 
 # Files
 DB_FILENAME = '%s/sessionDB' % APP_FOLDER
-CONFIG_FILE_ORIGINAL = 'demosite.cfg'
-CONFIG_FILE = '%s/demosite.cfg' % APP_FOLDER
-LOG_FN = '%s/app.log' % APP_FOLDER
+CONFIG_FILE_ORIGINAL = 'client-oxd.cfg'
+CONFIG_FILE = '%s/client-oxd.cfg' % APP_FOLDER
+LOG_FN = '%s/cgi-demo.log' % APP_FOLDER
 
 # Application URLs
 HOME_URL = '/cgi-bin/home.cgi'
@@ -38,7 +38,6 @@ post_logout_redirect_uri = https://%s/cgi-bin/logout-confirmation.cgi
 client_frontchannel_logout_uris = https://%s/cgi-bin/callback-logout.cgi
 claims_redirect_uri = https://%s/cgi-bin/uma-home.cgi
 client_name = World's Simplest Web App
-contacts = admin@example.com
-scope = openid,email,profile
+scope = openid
 grant_types = client_credentials,authorization_code
 """ % tuple(4 * [COOKIE_DOMAIN])

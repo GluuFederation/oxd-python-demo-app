@@ -1,38 +1,54 @@
-# UMA RS App
+# Welcome to the uma_rs Demo!
 
-This is a sample application to demonstrate a UMA Resource Server
-and requesting party using oxd.
+The goal of uma_rs is to demonstrate how an API programmer can use UMA to
+protect API's by making the right calls to oxd.
 
-## Files
+In UMA, the RS is the thing that has the API's. The RS knows which scopes are required to call it's API's. It is the policy enforcement point--it must decide whether to give access to a client, based on a bearer token issued by the Authorization Server.
 
-* `app.py` - A simple flask application
-* `app_config.py` - The configuration for the Flask application
-* `rs-oxd.cfg` - oxd-python config file
+## Prerequisites
 
-## Demo Application
+* Gluu Server 3.1.2
+* oxd 3.1.2
+* oxd-python 3.1.2
 
-### What does the app do?
+## Configuration
 
-* The app acts as a UMA Resource server.
-* When either of the endpoints `/api/photos/` or `/api/docs` is accessed, it checks the Auth Server for access and returns a response based on the Auth Server's answer.
+Review the config files for flask `app_config.py` and oxd `rs-oxd.cfg`
 
-### Prerequisites
+### app_config.py
 
-* A Gluu Server to act as the Authorization Server
-* oxd-server or oxd-https-extension configured with the Gluu server as its `op_host`.
+The file contains the standard flask variables like
+`SERVER_NAME` and `SECRET_KEY` and `DEBUG`.
 
-### Running the app
+uma_rs defines a new flask variable called `RESOURCES`, which enables you
+to manage the API's of your uma_rs. Each `RESOURCES` key is an API.
+So for example, the default `app_config.py` in this project defines
+two API's: `/docs` and `/photos`.
 
-```commandline
-# apt install python-pip
-# pip install oxdpython
-# cd ~
-# git clone https://github.com/GluuFederation/oxd-python-demo-app.git
-# cd oxd-python-demo-app/uma_rs
-# python app.py
+The resource entry itself is a dictionary with three possible keys:
+
+* `content` - The static JSON data returned by the API
+* `protected` - are UMA access tokens required to call this API?  
+* `scope_map` - Maps which HTTP methods require which UMA scopes.
+
+### rs-oxd.cfg
+
+oxd-python configuration file provides information used for
+client registration. Make sure the `oxd` parameters for
+host and port are correct. You can use the default `client`
+parameters. For more information on how to make a configuration
+file for oxd-python, see the [oxd-python docs](https://github.com/GluuFederation/oxd-python)
+
+## Running uma_rs
+
+```
+$ cd ../uma_rs
+$ nohup python app.py > uma_rs.log 2>&1 &
+$ curl -k https://localhost:8085/api/
 ```
 
-Run `curl -k https://localhost:8085/` for API details.
+The `curl` command above should return a JSON document listing the api's
+defined as `RESOURCES` in `app_config.py`.
 
 ### Endpoints and responses
 
@@ -42,11 +58,11 @@ Run `curl -k https://localhost:8085/` for API details.
 {
   "resources": [
     {
-      "endpoint": "/api/photos", 
+      "endpoint": "/api/photos",
       "uma_protected": true
-    }, 
+    },
     {
-      "endpoint": "/api/docs", 
+      "endpoint": "/api/docs",
       "uma_protected": false
     }
   ]
@@ -59,11 +75,11 @@ Run `curl -k https://localhost:8085/` for API details.
 {
   "resources": [
     {
-      "endpoint": "/api/photos", 
+      "endpoint": "/api/photos",
       "uma_protected": true
-    }, 
+    },
     {
-      "endpoint": "/api/docs", 
+      "endpoint": "/api/docs",
       "uma_protected": false
     }
   ]
