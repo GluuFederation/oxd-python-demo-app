@@ -73,7 +73,14 @@ specify the Gluu Server hostname.
 
 ```
 # apt install python-pip
-# pip install oxdpython flask pyOpenSSL
+# pip install flask pyOpenSSL
+```
+
+Note, `uma_rs` application doesn't work with older `oxdpython` package.
+Instead, use the bleeding-edge package from GitHub.
+
+```
+pip install git+git://github.com/GluuFederation/oxd-python.git#egg=oxdpython
 ```
 
 ### Install and configure Apache 2
@@ -103,7 +110,7 @@ properties to suit your preference.
 
 This server publishes sample api's which return static data. You can use
 the properties file to define which api's are available, and what scopes
-are required for access.   
+are required for access.
 
 ```
 $ cd ../uma_rs
