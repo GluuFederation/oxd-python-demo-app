@@ -28,9 +28,9 @@ html = """<HTML><HEAD><TITLE>%(title)s</TITLE></HEAD>
         <th>UMA Protection Status</th>
         <th>Action</th>
     </tr>
-    
+
     %(endpoints)s
-        
+
 </table>
 <hr>
 
@@ -85,7 +85,7 @@ try:
             {endpoint}
         </td>
         <td>{uma_protected}</td>
-        <td> 
+        <td>
             <a href="/cgi-bin/uma-home.cgi?api={endpoint}">Get Resource</a>
         </td>
     </tr>
@@ -140,6 +140,7 @@ def get_ticket(url):
     :param url: url to call
     :return: ticket if 'www-authenticate' is available in headers, None otherwise
     """
+    ticket = None
     try:
         log("Requesting ticket from RS for url: %s" % url)
         if ctx:
@@ -147,7 +148,6 @@ def get_ticket(url):
         else:
             urllib2.urlopen(url)
         # the request is expected to fail, if it succeeds, then no ticket
-        ticket = None
     except urllib2.HTTPError as error_response:
         # Expect a 401 response when the RPT is empty
         if 'www-authenticate' in error_response.headers:
@@ -155,10 +155,10 @@ def get_ticket(url):
             www_auth = error_response.headers['www-authenticate']
             auth_values = dict(x.split('=') for x in www_auth.split(','))
             ticket = auth_values['ticket'].strip("\"")
-        else:
-            ticket = None
+        elif "WARNING" in error_response.headers:
+            log("Received 403 with Warning header: {}".format(error_response.headers["WARNING"]))
+            logError("Unable to get ticket for requested URL: %s" % url)
     except:
-        ticket = None
         logError("Request for ticket failed.")
         logException(traceback.format_exc())
     return ticket
@@ -213,14 +213,18 @@ if 'api' in fs:
     else:
         log('No RPT available. Generating new ticket and fetching RPT.')
         ticket = get_ticket(api_url)
-        fail_msg = fetch_rpt(ticket, c)
-        if fail_msg:
-            message = fail_msg
+        if not ticket:
+            message = "Ticket is not available for requested resource {}.".format(fs.getfirst("api"))
+            logError(message)
         else:
-            log("Getting the resource using the RPT.")
-            token_type = c.get('token_type').value
-            access_token = c.get('access_token').value
-            message = get_resource(api_url, token_type, access_token)
+            fail_msg = fetch_rpt(ticket, c)
+            if fail_msg:
+                message = fail_msg
+            else:
+                log("Getting the resource using the RPT.")
+                token_type = c.get('token_type').value
+                access_token = c.get('access_token').value
+                message = get_resource(api_url, token_type, access_token)
 
     log("Clearing the access_token from the cookie")
     c['access_token'] = ''
@@ -249,4 +253,3 @@ d['endpoints'] = endpoints
 print "Content-type: text/html\r\n"
 print ""
 print html % d
-
