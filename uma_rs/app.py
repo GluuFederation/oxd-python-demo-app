@@ -79,9 +79,24 @@ def api_resource(rtype):
             rpt = rpt.split()[1]
         status = oxc.uma_rs_check_access(rpt=rpt, path=request.path,
                                          http_method=request.method)
+    except socket.error as e:
+        app.logger.error("Unable to connect to oxd-server.")
+        status["error"] = "internal_error"
+    except OxdServerError as e:
+        app.logger.error(str(e))
+        status["error"] = "internal_error"
     except InvalidRequestError as e:
-        print str(e)
-        print request.path, " is unprotected. Denying access."
+        app.logger.error(str(e))
+        status["error"] = "invalid_request"
+
+    if "error" in status:
+        # conform to https://docs.kantarainitiative.org/uma/wg/oauth-uma-grant-2.0-05.html#rfc.section.3.2.2
+        response = make_response(
+            status['access'],
+            403,
+            {"Content-Type": "text/plain", "Warning": '199 - "UMA Authorization Server Unreachable"'},
+        )
+        return response
 
     if not status['access'] == 'granted':
         response = make_response(status['access'], 401, {"Content-Type": "text/plain"})
