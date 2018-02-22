@@ -1,19 +1,20 @@
 import os
 import oxdpython
 import random
-
-from app_config import RESOURCES
+import socket
 
 from flask import Flask, request, jsonify, abort, make_response
-from oxdpython.exceptions import InvalidRequestError
+from oxdpython.exceptions import InvalidRequestError, OxdServerError
 from oxdpython.utils import ResourceSet
 
 app = Flask(__name__)
+app.config.from_object('app_config')
+app.config['FIRST_RUN'] = True
+
 this_dir = os.path.dirname(os.path.realpath(__file__))
 config = os.path.join(this_dir, 'rs-oxd.cfg')
 oxc = oxdpython.Client(config)
 
-app.config['FIRST_RUN'] = True
 
 @app.route('/')
 def index():
@@ -21,23 +22,30 @@ def index():
         return setup_resource_server()
     return api()
 
+
 @app.route('/setup/')
 def setup_resource_server():
-    oxc.register_site()
     rset = ResourceSet()
 
-    for k, resource in RESOURCES.iteritems():
+    for k, resource in app.config["RESOURCES"].iteritems():
         path = "/api/{0}/".format(k)
         if resource['protected']:
             r = rset.add(path)
             for method, scope in resource['scope_map'].iteritems():
                 r.set_scope(method, scope)
 
-    if not oxc.uma_rs_protect(rset.dump()):
-        return jsonify({"error": "UMA protection failed. Check oxd-server logs."})
+    try:
+        oxc.register_site()
+        if not oxc.uma_rs_protect(rset.dump()):
+            return jsonify({"error": "UMA protection failed. Check oxd-server logs."})
+    except socket.error:
+        return jsonify({"error": "Unable to connect to oxd-server."})
+    except OxdServerError:
+        return jsonify({"error": "Unknown internal oxd-server error."})
 
     app.config['FIRST_RUN'] = False
     return api()
+
 
 @app.route('/api/')
 def api():
@@ -45,11 +53,13 @@ def api():
         return setup_resource_server()
 
     response = {
-        "resources": [{"endpoint": "/api/{0}/".format(k),
-                       "uma_protected": RESOURCES[k]["protected"]}
-                      for k in RESOURCES.keys()],
+        "resources": [{
+            "endpoint": "/api/{0}/".format(k),
+            "uma_protected": app.config["RESOURCES"][k]["protected"]
+        } for k in app.config["RESOURCES"].keys()],
     }
     return jsonify(response)
+
 
 @app.route('/api/<rtype>/', methods=['GET', 'POST', 'DELETE', 'PUT'])
 def api_resource(rtype):
@@ -61,7 +71,7 @@ def api_resource(rtype):
     if app.config.get('FIRST_RUN'):
         setup_resource_server()
 
-    resources = RESOURCES.keys()
+    resources = app.config["RESOURCES"].keys()
     status = {'access': 'denied'}
     try:
         rpt = request.headers.get('Authorization')
@@ -74,7 +84,7 @@ def api_resource(rtype):
         print request.path, " is unprotected. Denying access."
 
     if not status['access'] == 'granted':
-        response =  make_response(status['access'], 401, {"Content-Type": "text/plain"})
+        response = make_response(status['access'], 401, {"Content-Type": "text/plain"})
         if 'www-authenticate_header' in status:
             response.headers['WWW-Authenticate'] = status['www-authenticate_header']
         return response
@@ -82,7 +92,7 @@ def api_resource(rtype):
     if rtype not in resources:
         abort(404)
 
-    resource = RESOURCES[rtype]['content']
+    resource = app.config["RESOURCES"][rtype]['content']
 
     if request.method == 'GET':
         return jsonify({rtype: resource})
@@ -98,5 +108,4 @@ def api_resource(rtype):
 
 
 if __name__ == '__main__':
-    app.config.from_object('app_config')
     app.run(ssl_context='adhoc')
