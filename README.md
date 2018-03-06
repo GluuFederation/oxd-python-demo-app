@@ -4,21 +4,19 @@ The goal of this demo is to show oxd-python at work with a minimal
 amount of application overhead. A cookie is used to track a session id,
 which is persisted using the python shelve database interface.
 
-## Table of Contents
-
-* [Scripts in cgi-bin folder](#scripts-in-cgi-bin-folder)
-* [Deployment Instructions (Ubuntu 14/16)](#deployment-instructions-ubuntu-14-16)
-    - [Install oxd](#install-oxd)
-    - [Install Python Dependencies](#install-python-dependencies)
-    - [Install and Configure Apache 2](#install-and-configure-apache-2)
-    - [Install Demo](#install-demo)
-    - [Setup demo UMA Resource Server](#setup-demo-uma-resource-server)
-* [Demo](#demo)
-    - [OpenID Connect](#openid-connect)
-    - [UMA Requesting Party](#uma-requesting-party)
-* [Troubleshooting](#troubleshooting)
-* [Uninstall Demo](#uninstall-demo)
-
+- [Demo CGI](#demo-cgi)
+  * [Scripts in cgi-bin folder](#scripts-in-cgi-bin-folder)
+  * [Installation](#installation)
+    + [oxd service](#oxd-service)
+    + [Install python dependencies](#install-python-dependencies)
+    + [Install and configure Apache 2](#install-and-configure-apache-2)
+    + [Install cgi demo](#install-cgi-demo)
+    + [Start the demo UMA Resource Server](#start-the-demo-uma-resource-server)
+  * [Testing](#testing)
+    + [OpenID Connect demo](#openid-connect-demo)
+    + [Testing UMA Requesting Party demo](#testing-uma-requesting-party-demo)
+  * [Troubleshooting](#troubleshooting)
+  * [Uninstall demo](#uninstall-demo)
 
 ## Scripts in cgi-bin folder
 
@@ -58,12 +56,12 @@ Server if claims gathering was necessary.
 * **appLog.py** Module to centralize logging code
 * **common.py** Place to put some shared methods
 
-## Deployment Instructions
+## Installation
 
 ###  oxd service
 
-Make sure `oxd-server` is running `# service oxd-server status`
-or that an oxd https service is available on the network.
+Make sure oxd-server is running or that an oxd https service is
+available on the network.
 
 If necessary, install [oxd-server](https://gluu.org/docs/oxd/).
 
@@ -83,8 +81,7 @@ pip install git+git://github.com/GluuFederation/oxd-python.git#egg=oxdpython
 ### Install and configure Apache 2
 
 Following are instructions for Debian/Ubuntu. For Redhat/Centos,
-configure ssl and check the `cgi-bin` location, which you may
-have to update in `constants.py`.
+configure ssl and update the `cgi-bin` location in `constants.py`.
 
 ```
 # apt install apache2
@@ -95,7 +92,7 @@ have to update in `constants.py`.
 # service apache2 restart
 ```
 
-### Install demo
+### Install cgi demo
 
 1. `$ git clone https://github.com/GluuFederation/oxd-python-demo-app.git`
 1. `$ cd oxd-python-demo-app/cgi-bin`
@@ -103,10 +100,10 @@ have to update in `constants.py`.
 properties to suit your preference.
 1. `$ sudo python setupDemo.py`
 
-### Start the UMA Resource Server
+### Start the demo UMA Resource Server
 
-This server publishes sample api's which return static data. You can use
-the properties file to define which api's are available, and what scopes
+This server publishes sample api's which return static data. You can edit
+`app_config.py` to define which api's are available, and what scopes
 are required for access.
 
 ```
@@ -117,11 +114,11 @@ $ curl -k https://localhost:8085/api/
 
 The `curl` command should return a JSON document listing the available api's.
 
-## Demo
+## Testing
 
-### OpenID Connect
+### OpenID Connect demo
 
-Start the demo by navigating to `https://(your-hostname)/cgi-bin/home.cgi`
+Navigate to `https://(your-hostname)/cgi-bin/home.cgi`
 
 ![home](images/home.png)
 
@@ -133,7 +130,7 @@ Start the demo by navigating to `https://(your-hostname)/cgi-bin/home.cgi`
 
 ![logout confirmation](images/logout-confirmation.png)
 
-### UMA Requesting Party
+### Testing UMA Requesting Party demo
 
 To test UMA, visit `https://your-hostname/cgi-bin/uma-home.cgi`
 
@@ -157,8 +154,7 @@ hostname of the Gluu Server (i.e. use DNS or update your `/etc/hosts` file).
 * To debug, check the application log, which defaults to
 `/var/log/samleapp/app.log`, and the oxd log in `/var/log/oxd-server.log`
 
-* You should be able to login using an existing account on your Gluu Server.
-
+* Make sure your test account on the Gluu Server is working.
 
 ## Uninstall demo
 
