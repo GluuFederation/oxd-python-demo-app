@@ -60,14 +60,12 @@ Server if claims gathering was necessary.
 
 ## Deployment Instructions
 
-###  Install oxd
+###  oxd service
 
-1. Install [oxd-server](https://gluu.org/docs/oxd/install/)
-2. Edit `/opt/oxd-server/conf/oxd-conf.json` and enter server name and your oxd license details.
-Set `uma2_auto_register_claims_gathering_endpoint_as_redirect_uri_of_client` to false.
-3. Edit `/opt/oxd-server/conf/oxd-default-site-conf.json` and for`op_host`,
-specify the Gluu Server hostname.
-4. Start oxd-server `/etc/init.d/oxd-server start`
+Make sure `oxd-server` is running `# service oxd-server status`
+or that an oxd https service is available on the network.
+
+If necessary, install [oxd-server](https://gluu.org/docs/oxd/).
 
 ### Install python dependencies
 
@@ -76,8 +74,7 @@ specify the Gluu Server hostname.
 # pip install flask pyOpenSSL
 ```
 
-Note, `uma_rs` application doesn't work with older `oxdpython` package.
-Instead, use the bleeding-edge package from GitHub.
+Install the bleeding-edge `oxd-python` package from GitHub.
 
 ```
 pip install git+git://github.com/GluuFederation/oxd-python.git#egg=oxdpython
